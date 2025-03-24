@@ -77,10 +77,13 @@ class Conveyer:
         print(f"Tact: {self._conveyer['tact']}")
         print("Enter queue:")
         os.system('clear')
-        if self._conveyer['tact']:
+
+        if self._conveyer['tact'] or self._conveyer['queue']:
+            print(f"Tact: {self._conveyer['tact']}")
             for dividend, divisor in self._conveyer['queue']:
                 print(f"{dividend} / {divisor}")
         else:
+            print(f"Total tact: {len(self._conveyer['queue_backup']) + self._count - 1}")
             for dividend, divisor in self._conveyer['queue_backup']:
                 print(f"{dividend} / {divisor}")
 
