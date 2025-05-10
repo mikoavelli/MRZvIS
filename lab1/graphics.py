@@ -34,7 +34,7 @@ def e(n, r):
     return ky / n
 
 
-def plot_ky_vs_r(n_actual, r_actual, r_max_plot=20):
+def plot_ky_vs_r(n_actual, r_actual, digits, r_max_plot=20):
     """
     График Ky от r.
     Точки для n=1 и n=n_actual.
@@ -52,6 +52,10 @@ def plot_ky_vs_r(n_actual, r_actual, r_max_plot=20):
     for r_val, ky_val in zip(r_values, ky_n_actual_vals):
         if not np.isnan(ky_val):
             plt.text(r_val, ky_val, f'{ky_val:.2f}', fontsize=8, ha='center', va='bottom')
+    
+    # Добавление горизонтальной линии на уровне y=6
+    plt.axhline(y=digits, color='red', linestyle='--', linewidth=1.5, 
+                label='$K_y = 6$ асимптота.')
 
     plt.title(f'График зависимости $K_y$ от ранга задачи $r$')
     plt.xlabel('Ранг задачи, $r$')
@@ -141,25 +145,25 @@ def plot_ky_vs_n(
         legend_labels.append(f'r={r_fix}')
 
     # --- ДОБАВЛЕНИЕ ГОРИЗОНТАЛЬНОЙ ЛИНИИ ---
-    if ky_horizontal_line_at is not None:
-        # Рисуем линию через весь диапазон x, используемый для точек
-        # Если n_points_to_plot содержит только одну точку, расширяем диапазон для линии
-        x_line_min = min(n_points_to_plot)
-        x_line_max = max(n_points_to_plot)
-        if x_line_min == x_line_max: # Только одна точка n
-            x_line_coords_for_horizontal = [x_line_min - 0.5, x_line_max + 0.5]
-        else:
-            x_line_coords_for_horizontal = [x_line_min, x_line_max]
+    # if ky_horizontal_line_at is not None:
+    #     # Рисуем линию через весь диапазон x, используемый для точек
+    #     # Если n_points_to_plot содержит только одну точку, расширяем диапазон для линии
+    #     x_line_min = min(n_points_to_plot)
+    #     x_line_max = max(n_points_to_plot)
+    #     if x_line_min == x_line_max: # Только одна точка n
+    #         x_line_coords_for_horizontal = [x_line_min - 0.5, x_line_max + 0.5]
+    #     else:
+    #         x_line_coords_for_horizontal = [x_line_min, x_line_max]
 
-        # Для большей наглядности можно рисовать линию чуть шире, чем крайние точки n
-        # x_line_coords_for_horizontal = [0.5, n_max_plot_param + 0.5]
+    #     # Для большей наглядности можно рисовать линию чуть шире, чем крайние точки n
+    #     # x_line_coords_for_horizontal = [0.5, n_max_plot_param + 0.5]
 
-        line_h, = plt.plot(x_line_coords_for_horizontal, [ky_horizontal_line_at] * len(x_line_coords_for_horizontal),
-                           color='red', linestyle='--', linewidth=1.5,
-                           label=f'$K_y = {ky_horizontal_line_at}$ асимптота.')
-        legend_handles.append(line_h)
-        legend_labels.append(f'$K_y = {ky_horizontal_line_at}$ - асимптота')
-        max_y_value_from_points = max(max_y_value_from_points, ky_horizontal_line_at)
+    #     line_h, = plt.plot(x_line_coords_for_horizontal, [ky_horizontal_line_at] * len(x_line_coords_for_horizontal),
+    #                        color='red', linestyle='--', linewidth=1.5,
+    #                        label=f'$K_y = {ky_horizontal_line_at}$ асимптота.')
+    #     legend_handles.append(line_h)
+    #     legend_labels.append(f'$K_y = {ky_horizontal_line_at}$ - асимптота')
+    #     max_y_value_from_points = max(max_y_value_from_points, ky_horizontal_line_at)
 
 
     plt.title(f'График зависимости $K_y$ от кол-ва этапов $n$ (начало и конец)')
@@ -450,7 +454,7 @@ class Conveyer:
         n_plot_limit = max(n_sim + 2, 8)
         r_curves_limit = max(8, r_sim + 1)
 
-        plot_ky_vs_r(n_sim, r_sim, r_max_plot=r_plot_limit)
+        plot_ky_vs_r(n_sim, r_sim, n_sim, r_max_plot=r_plot_limit)
         plot_e_vs_r(n_sim, r_sim, r_max_plot=r_plot_limit)
         plot_ky_vs_n(n_sim, r_sim, n_max_plot_param=n_plot_limit, r_max_curves_param=r_curves_limit)
         plot_e_vs_n(n_sim, r_sim, n_max_plot_param=n_plot_limit, r_max_curves_param=r_curves_limit)
@@ -466,9 +470,9 @@ if __name__ == "__main__":
         # divisors_in = input("Enter space-separated divisors: ").split()
         # n_digits_in = int(input("Enter number of binary digits (pipeline stages, n): "))
         n_digits_in = 8
-        rank = 8
-        dividends_in = [str(random.randint(0, 255)) for _ in range(rank)]
-        divisors_in = [str(random.randint(1, 255)) for _ in range(rank)]
+        rank = 10
+        dividends_in = [str(random.randint(0, 2 ** n_digits_in - 1)) for _ in range(rank)]
+        divisors_in = [str(random.randint(1, 2 ** n_digits_in - 1)) for _ in range(rank)]
 
         conveyor_instance = Conveyer(dividends_in, divisors_in, n_digits_in)
 
