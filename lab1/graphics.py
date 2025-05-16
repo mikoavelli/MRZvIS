@@ -55,7 +55,7 @@ def plot_ky_vs_r(n_actual, r_actual, digits, r_max_plot=20):
     
     # Добавление горизонтальной линии на уровне y=6
     plt.axhline(y=digits, color='red', linestyle='--', linewidth=1.5, 
-                label='$K_y = 6$ асимптота.')
+                label=f'$K_y = {digits}$ асимптота.')
 
     plt.title(f'График зависимости $K_y$ от ранга задачи $r$')
     plt.xlabel('Ранг задачи, $r$')
