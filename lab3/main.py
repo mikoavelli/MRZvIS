@@ -6,7 +6,7 @@ from data_utils import pad_and_chunk_image, reconstruct_image_from_chunks
 INPUT_IMAGE_PATH = 'input.bmp'
 OUTPUT_IMAGE_PATH = 'output.bmp'
 
-CHUNK_SHAPE = (3, 3)
+CHUNK_SHAPE = (8, 8)
 HIDDEN_SIZE = 256
 EPOCHS = 500
 LOG_FREQUENCY = 1
@@ -14,7 +14,7 @@ LOG_FREQUENCY = 1
 INITIAL_LEARNING_RATE = 0.001
 
 ENABLE_LR_SCHEDULER = True
-LR_SCHEDULER_PATIENCE = 20
+LR_PATIENCE_PERCENTAGE = 2.0
 LR_SCHEDULER_FACTOR = 0.5
 MIN_LEARNING_RATE = 1e-6
 
@@ -36,11 +36,18 @@ if __name__ == '__main__':
         print(f"Image padded size: {padded_shape[1]}x{padded_shape[0]}")
         print(f"Sequence length: {len(chunk_sequence)} chunks")
         print(f"Vector size per chunk: {input_size}")
-        print("Starting training...")
 
         best_loss = float('inf')
         patience_counter = 0
         current_lr = INITIAL_LEARNING_RATE
+
+        lr_scheduler_patience = max(1, int(EPOCHS * (LR_PATIENCE_PERCENTAGE / 100.0)))
+
+        if ENABLE_LR_SCHEDULER:
+            print(
+                f"LR Scheduler enabled with a dynamic patience of {lr_scheduler_patience} epochs ({LR_PATIENCE_PERCENTAGE}% of total epochs).")
+
+        print("Starting training...")
 
         for epoch in range(EPOCHS):
             loss = model.train_step(inputs_sequence, targets_sequence, current_lr)
@@ -55,11 +62,11 @@ if __name__ == '__main__':
                 else:
                     patience_counter += 1
 
-                if patience_counter >= LR_SCHEDULER_PATIENCE:
+                if patience_counter >= lr_scheduler_patience:
                     new_lr = current_lr * LR_SCHEDULER_FACTOR
                     if new_lr >= MIN_LEARNING_RATE:
                         print(
-                            f"--- No improvement for {LR_SCHEDULER_PATIENCE} epochs. Reducing learning rate from {current_lr} to {new_lr} ---")
+                            f"--- No improvement for {lr_scheduler_patience} epochs. Reducing learning rate from {current_lr:.6f} to {new_lr:.6f} ---")
                         current_lr = new_lr
                     patience_counter = 0
 
