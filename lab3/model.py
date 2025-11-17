@@ -7,9 +7,9 @@ class ImageReconstructorRNN:
         self.hidden_size = hidden_size
         self.output_size = output_size
 
-        self.W_ih = np.random.randn(hidden_size, input_size) * np.sqrt(1. / input_size)
-        self.W_hh = np.random.randn(hidden_size, hidden_size) * np.sqrt(1. / hidden_size)
-        self.W_ho = np.random.randn(output_size, hidden_size) * np.sqrt(1. / hidden_size)
+        self.W_ih = np.random.uniform(-0.1, 0.1, (hidden_size, input_size))
+        self.W_hh = np.random.uniform(-0.1, 0.1, (hidden_size, hidden_size))
+        self.W_ho = np.random.uniform(-0.1, 0.1, (output_size, hidden_size))
 
         self.b_h = np.zeros((hidden_size, 1))
         self.b_o = np.zeros((output_size, 1))
@@ -27,8 +27,11 @@ class ImageReconstructorRNN:
         outputs = []
         for i in range(len(inputs)):
             x = inputs[i].reshape(-1, 1)
-            self.hidden_states[i] = np.tanh(
-                np.dot(self.W_ih, x) + np.dot(self.W_hh, self.hidden_states[i - 1]) + self.b_h)
+            self.hidden_states[i] = (
+                    np.dot(self.W_ih, x) +
+                    np.dot(self.W_hh, self.hidden_states[i - 1]) +
+                    self.b_h
+            )
             output = np.dot(self.W_ho, self.hidden_states[i]) + self.b_o
             outputs.append(output)
         return outputs
@@ -42,19 +45,24 @@ class ImageReconstructorRNN:
         for i in reversed(range(len(self.inputs))):
             error = outputs[i] - targets[i].reshape(-1, 1)
             total_loss += np.sum(error ** 2)
+
             dW_ho += np.dot(error, self.hidden_states[i].T)
             db_o += error
+
             dh = np.dot(self.W_ho.T, error) + dh_next
-            dh_raw = dh * (1 - self.hidden_states[i] ** 2)
+
+            dh_raw = dh
+
             dW_hh += np.dot(dh_raw, self.hidden_states[i - 1].T)
             dW_ih += np.dot(dh_raw, self.inputs[i].reshape(1, -1))
             db_h += dh_raw
+
             dh_next = np.dot(self.W_hh.T, dh_raw)
 
         for dparam in [dW_ih, dW_hh, dW_ho, db_h, db_o]:
             np.clip(dparam, -5, 5, out=dparam)
 
-        return {'W_ih': dW_ih, 'W_hh': dW_hh, 'W_ho': dW_ho, 'b_h': db_h, 'b_o': db_o}, total_loss / len(self.inputs)
+        return {'W_ih': dW_ih, 'W_hh': dW_hh, 'W_ho': dW_ho, 'b_h': db_h, 'b_o': db_o}, total_loss / len(targets)
 
     def update_weights_adam(self, grads, learning_rate):
         self.t += 1

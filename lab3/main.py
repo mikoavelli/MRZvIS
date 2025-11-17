@@ -4,7 +4,7 @@ from model import ImageReconstructorRNN
 from data_utils import pad_and_chunk_image, reconstruct_image_from_chunks
 
 INPUT_IMAGE_PATH = 'input.bmp'
-OUTPUT_IMAGE_PATH = 'output.bmp'
+OUTPUT_IMAGE_PATH = 'ouput.bmp'
 
 CHUNK_SHAPE = (8, 8)
 HIDDEN_SIZE = 256
@@ -14,7 +14,7 @@ LOG_FREQUENCY = 1
 INITIAL_LEARNING_RATE = 0.001
 
 ENABLE_LR_SCHEDULER = True
-LR_PATIENCE_PERCENTAGE = 2.0
+LR_PATIENCE_PERCENTAGE = 1.0
 LR_SCHEDULER_FACTOR = 0.5
 MIN_LEARNING_RATE = 1e-6
 
@@ -29,23 +29,16 @@ if __name__ == '__main__':
         targets_sequence = chunk_sequence
 
         input_size = chunk_sequence.shape[1]
-
         model = ImageReconstructorRNN(input_size, HIDDEN_SIZE, input_size)
 
         print(f"Image original size: {original_shape[1]}x{original_shape[0]}")
-        print(f"Image padded size: {padded_shape[1]}x{padded_shape[0]}")
-        print(f"Sequence length: {len(chunk_sequence)} chunks")
+        print(f"Sequence length: {len(targets_sequence)} chunks")
         print(f"Vector size per chunk: {input_size}")
 
         best_loss = float('inf')
         patience_counter = 0
         current_lr = INITIAL_LEARNING_RATE
-
         lr_scheduler_patience = max(1, int(EPOCHS * (LR_PATIENCE_PERCENTAGE / 100.0)))
-
-        if ENABLE_LR_SCHEDULER:
-            print(
-                f"LR Scheduler enabled with a dynamic patience of {lr_scheduler_patience} epochs ({LR_PATIENCE_PERCENTAGE}% of total epochs).")
 
         print("Starting training...")
 
@@ -53,7 +46,7 @@ if __name__ == '__main__':
             loss = model.train_step(inputs_sequence, targets_sequence, current_lr)
 
             if epoch % LOG_FREQUENCY == 0 or epoch == EPOCHS - 1:
-                print(f'Epoch {epoch}, Loss: {loss:.6f}, LR: {current_lr}')
+                print(f'Epoch {epoch}, Loss: {loss:.6f}, LR: {current_lr:.6f}')
 
             if ENABLE_LR_SCHEDULER:
                 if loss < best_loss:
@@ -65,8 +58,7 @@ if __name__ == '__main__':
                 if patience_counter >= lr_scheduler_patience:
                     new_lr = current_lr * LR_SCHEDULER_FACTOR
                     if new_lr >= MIN_LEARNING_RATE:
-                        print(
-                            f"--- No improvement for {lr_scheduler_patience} epochs. Reducing learning rate from {current_lr:.6f} to {new_lr:.6f} ---")
+                        print(f"--- No improvement for {lr_scheduler_patience} epochs. Reducing LR to {new_lr:.6f} ---")
                         current_lr = new_lr
                     patience_counter = 0
 
