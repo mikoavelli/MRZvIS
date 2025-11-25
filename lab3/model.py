@@ -8,137 +8,122 @@
 import numpy as np
 
 
-class ImageReconstructorRNN:
-    """
-    Класс, реализующий рекуррентную нейронную сеть (РНН) для задачи
-    реконструкции изображений (автоэнкодер).
-    """
-
+class ImageReconstructorNN:
     def __init__(self, input_size, hidden_size, output_size):
-        """
-        Конструктор класса. Инициализирует все обучаемые параметры (веса)
-        и переменные для оптимизатора Adam.
-        """
+        self.inputs = None
+        self.hidden_states = None
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.output_size = output_size
 
-        # Матрица: Вход -> Скрытый слой
-        self.W_ih = np.random.uniform(-0.1, 0.1, (hidden_size, input_size))
-        # Матрица: Скрытый слой -> Скрытый слой (рекуррентная связь)
-        self.W_hh = np.random.uniform(-0.1, 0.1, (hidden_size, hidden_size))
-        # Матрица: Скрытый слой -> Выход
-        self.W_ho = np.random.uniform(-0.1, 0.1, (output_size, hidden_size))
+        init_range = 1.0
+        self.W_ih = np.random.uniform(-init_range, init_range, (hidden_size, input_size)).astype(np.float32)
+        self.W_ho = np.random.uniform(-init_range, init_range, (output_size, hidden_size)).astype(np.float32)
 
-        # Веса-смещения (биасы) инициализируются нулями.
-        self.b_h = np.zeros((hidden_size, 1))  # Вектор смещения для скрытого слоя
-        self.b_o = np.zeros((output_size, 1))  # Вектор смещения для выходного слоя
-
-        # 'm' хранит скользящее среднее градиентов (моментум).
-        # 'v' хранит скользящее среднее квадратов градиентов (адаптивная часть).
         self.m, self.v = {}, {}
-        for param in ['W_ih', 'W_hh', 'W_ho', 'b_h', 'b_o']:
+        for param in ['W_ih', 'W_ho']:
             self.m[param] = np.zeros_like(getattr(self, param))
             self.v[param] = np.zeros_like(getattr(self, param))
 
-        # Стандартные гиперпараметры для Adam.
-        # self.beta1: Коэффициент затухания для "момента" (скользящего среднего градиентов).
-        # Отвечает за инерцию обновлений, помогает ускоряться в правильном направлении.
-        self.beta1 = 0.9
-        # self.beta2: Коэффициент затухания для скользящего среднего квадратов градиентов.
-        # Отвечает за адаптацию скорости обучения для каждого веса индивидуально.
-        self.beta2 = 0.999
-        # self.epsilon: Очень маленькое число для предотвращения деления на ноль в формуле Adam.
-        # Обеспечивает численную стабильность.
-        self.epsilon = 1e-8
-        # self.t: Счетчик шагов обучения. Используется для коррекции смещения 'm' и 'v'
-        # на начальных этапах, когда они инициализированы нулями.
-        self.t = 0
+        self.beta1, self.beta2, self.epsilon, self.t = 0.9, 0.999, 1e-8, 0
 
     def forward(self, inputs):
-        """
-        Прямой проход. Выполняет предсказание для всей последовательности.
-        """
         self.inputs = inputs
-        # Инициализация "нулевого" скрытого состояния (памяти до начала последовательности).
-        self.hidden_states = {-1: np.zeros((self.hidden_size, 1))}
-        outputs = []
-        # Цикл по всем чанкам во входной последовательности.
-        for i in range(len(inputs)):
-            x = inputs[i].reshape(-1, 1)
-            # Новое скрытое состояние вычисляется на основе входа и предыдущего состояния.
-            # Функция активации отсутствует, что делает эту операцию линейной.
-            self.hidden_states[i] = (
-                    np.dot(self.W_ih, x) +
-                    np.dot(self.W_hh, self.hidden_states[i - 1]) +
-                    self.b_h
-            )
-            # Выходное значение генерируется на основе нового скрытого состояния.
-            output = np.dot(self.W_ho, self.hidden_states[i]) + self.b_o
-            outputs.append(output)
+        self.hidden_states = np.dot(inputs, self.W_ih.T)
+
+        outputs = np.dot(self.hidden_states, self.W_ho.T)
+
         return outputs
 
-    def backward(self, outputs, targets):
-        """
-        Обратный проход (Backpropagation Through Time). Вычисляет градиенты (производные)
-        функции потерь по всем весам.
-        """
-        # Инициализация градиентов нулями.
-        dW_ih, dW_hh, dW_ho = np.zeros_like(self.W_ih), np.zeros_like(self.W_hh), np.zeros_like(self.W_ho)
-        db_h, db_o = np.zeros_like(self.b_h), np.zeros_like(self.b_o)
-        # Градиент скрытого состояния, передаваемый на предыдущий шаг по времени.
-        dh_next = np.zeros_like(self.hidden_states[0])
-        total_loss = 0
+    def backward(self, outputs, targets, compute_loss=False):
+        N = self.inputs.shape[0]
+        error = outputs - targets
 
-        # Цикл по последовательности в ОБРАТНОМ порядке.
-        for i in reversed(range(len(self.inputs))):
-            # 1. Вычисление ошибки и потерь (MSE) для текущего шага.
-            error = outputs[i] - targets[i].reshape(-1, 1)
-            total_loss += np.sum(error ** 2)
+        total_loss = 0.0
+        if compute_loss:
+            total_loss = np.mean(error ** 2) * self.input_size
 
-            # 2. Расчет градиентов для выходного слоя.
-            dW_ho += np.dot(error, self.hidden_states[i].T)
-            db_o += error
+        dW_ho = np.dot(error.T, self.hidden_states)
 
-            # 3. Распространение ошибки назад: от выхода к скрытому слою.
-            dh = np.dot(self.W_ho.T, error) + dh_next
+        dh = np.dot(error, self.W_ho)
 
-            # Для линейной функции активации ее производная равна 1, поэтому dh_raw = dh.
-            dh_raw = dh
+        dW_ih = np.dot(dh.T, self.inputs)
 
-            # 4. Расчет градиентов для скрытого и входного слоев на основе распространенной ошибки.
-            dW_hh += np.dot(dh_raw, self.hidden_states[i - 1].T)
-            dW_ih += np.dot(dh_raw, self.inputs[i].reshape(1, -1))
-            db_h += dh_raw
-
-            # 5. Обновление градиента для передачи на следующий (предыдущий по времени) шаг.
-            dh_next = np.dot(self.W_hh.T, dh_raw)
-
-        # Ограничение градиентов (Clipping) для предотвращения "взрыва градиентов".
-        for dparam in [dW_ih, dW_hh, dW_ho, db_h, db_o]:
-            np.clip(dparam, -5, 5, out=dparam)
-
-        # Возвращаем словарь с градиентами и среднее значение потерь.
-        return {'W_ih': dW_ih, 'W_hh': dW_hh, 'W_ho': dW_ho, 'b_h': db_h, 'b_o': db_o}, total_loss / len(targets)
+        return {
+            'W_ih': dW_ih / N,
+            'W_ho': dW_ho / N
+        }, total_loss
 
     def update_weights_adam(self, grads, learning_rate):
         self.t += 1
-        for key in ['W_ih', 'W_hh', 'W_ho', 'b_h', 'b_o']:
+
+        correction1 = 1 - self.beta1 ** self.t
+        correction2 = 1 - self.beta2 ** self.t
+
+        for key in ['W_ih', 'W_ho']:
             param = getattr(self, key)
-            # Вычисление скользящих средних для градиентов и их квадратов.
-            self.m[key] = self.beta1 * self.m[key] + (1 - self.beta1) * grads[key]
-            self.v[key] = self.beta2 * self.v[key] + (1 - self.beta2) * (grads[key] ** 2)
-            # Коррекция смещения для начальных шагов обучения.
-            m_corr = self.m[key] / (1 - self.beta1 ** self.t)
-            v_corr = self.v[key] / (1 - self.beta2 ** self.t)
-            # Финальное обновление веса.
+            grad = grads[key]
+
+            m = self.m[key]
+            v = self.v[key]
+
+            m[:] = self.beta1 * m + (1 - self.beta1) * grad
+            v[:] = self.beta2 * v + (1 - self.beta2) * (grad ** 2)
+
+            m_corr = m / correction1
+            v_corr = v / correction2
+
             param -= learning_rate * m_corr / (np.sqrt(v_corr) + self.epsilon)
 
-    def train_step(self, inputs, targets, learning_rate):
-        """
-        Один полный шаг обучения.
-        """
+    def train_step(self, inputs, targets, learning_rate, compute_loss=False):
         outputs = self.forward(inputs)
-        grads, loss = self.backward(outputs, targets)
+        grads, loss = self.backward(outputs, targets, compute_loss)
         self.update_weights_adam(grads, learning_rate)
         return loss
+
+    def train(self, inputs, targets, config):
+        inputs = inputs.astype(np.float32)
+        targets = targets.astype(np.float32)
+
+        max_epochs = config.get('max_epochs', 10000)
+        target_loss = config.get('target_loss', 0.0)
+        initial_lr = config['initial_lr']
+        log_frequency = config['log_frequency']
+
+        enable_scheduler = config.get('enable_scheduler', False)
+        patience_threshold = config.get('lr_scheduler_patience_epochs', 20)
+        factor = config['lr_factor']
+        min_lr = config['min_lr']
+
+        patience_counter = 0
+        best_loss = float('inf')
+        loss = float('inf')
+        current_lr = initial_lr
+
+        print(f"Starting optimized training (float32). Target Loss: {target_loss}...")
+
+        for epoch in range(max_epochs):
+            loss = self.train_step(inputs, targets, current_lr, compute_loss=True)
+
+            if loss <= target_loss:
+                print(f"\n✅ Target loss {target_loss} reached at epoch {epoch}! Loss: {loss:.6f}")
+                break
+
+            if epoch % log_frequency == 0:
+                print(f'Epoch {epoch}, Loss: {loss:.6f}, LR: {current_lr:.6f}')
+
+            if enable_scheduler:
+                if loss < best_loss:
+                    best_loss = loss
+                    patience_counter = 0
+                else:
+                    patience_counter += 1
+
+                if patience_counter >= patience_threshold:
+                    new_lr = current_lr * factor
+                    if new_lr >= min_lr:
+                        print(f"--- No new best loss for {patience_threshold} epochs. Reducing LR to {new_lr:.6f} ---")
+                        current_lr = new_lr
+                        patience_counter = 0
+        else:
+            print(f"\n⚠️ Max epochs ({max_epochs}) reached. Final Loss: {loss:.6f}")
