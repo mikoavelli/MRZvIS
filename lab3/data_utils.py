@@ -9,6 +9,11 @@ import numpy as np
 
 
 def pad_and_chunk_image(image_array, chunk_shape):
+    """
+    Подготавливает изображение для подачи в нейросеть.
+    1. Дополняет края (padding), чтобы изображение делилось на чанки без остатка.
+    2. Нарезает изображение на квадратики (чанки) и выпрямляет их в векторы.
+    """
     original_shape = image_array.shape
     h, w, c = original_shape
     ch, cw = chunk_shape
