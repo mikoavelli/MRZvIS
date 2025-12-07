@@ -1,7 +1,8 @@
 import os
+
+import config
 import numpy as np
 from PIL import Image
-import config
 
 
 def load_image_as_vector(filepath, target_size=None):
@@ -13,7 +14,7 @@ def load_image_as_vector(filepath, target_size=None):
     Возвращает: (vector, (width, height))
     """
     try:
-        img = Image.open(filepath).convert('L')
+        img = Image.open(filepath).convert("L")
 
         if target_size is not None:
             img = img.resize(target_size)
@@ -70,7 +71,7 @@ def generate_dummy_data():
 
     if len(os.listdir(config.DATA_DIR)) == 0:
         print(f"Генерация тестовых данных ({config.DEFAULT_GEN_SIZE})...")
-        chars = ['A', 'B', 'C', 'D', 'E']
+        chars = ["A", "B", "C", "D", "E"]
         np.random.seed(42)
         w, h = config.DEFAULT_GEN_SIZE
         for char in chars:

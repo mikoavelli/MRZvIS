@@ -24,7 +24,9 @@ def pad_and_chunk_image(image_array, chunk_shape):
 
     # Если дополнение необходимо, создаем новый массив с отраженными по краям пикселями.
     if pad_h > 0 or pad_w > 0:
-        padded_array = np.pad(image_array, ((0, pad_h), (0, pad_w), (0, 0)), mode='reflect')
+        padded_array = np.pad(
+            image_array, ((0, pad_h), (0, pad_w), (0, 0)), mode="reflect"
+        )
     else:
         padded_array = image_array
 
@@ -35,10 +37,18 @@ def pad_and_chunk_image(image_array, chunk_shape):
     # Новая форма и "шаги" для 5D-представления.
     strides = padded_array.strides
     temp_shape = (ph // ch, ch, pw // cw, cw, c)
-    temp_strides = (ch * strides[0], strides[0], cw * strides[1], strides[1], strides[2])
+    temp_strides = (
+        ch * strides[0],
+        strides[0],
+        cw * strides[1],
+        strides[1],
+        strides[2],
+    )
 
     # Создание "вида" (view) массива без копирования данных.
-    chunked_view = np.lib.stride_tricks.as_strided(padded_array, shape=temp_shape, strides=temp_strides)
+    chunked_view = np.lib.stride_tricks.as_strided(
+        padded_array, shape=temp_shape, strides=temp_strides
+    )
     # Преобразование 5D-вида в 2D-массив, где каждая строка - это один "расплющенный" чанк.
     sequence = chunked_view.transpose(0, 2, 1, 3, 4).reshape(-1, ch * cw * c)
 

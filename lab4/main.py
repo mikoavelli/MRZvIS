@@ -1,7 +1,7 @@
 import os
-import matplotlib.pyplot as plt
 
 import config
+import matplotlib.pyplot as plt
 import utils
 from hamming_network import HammingNetwork
 
@@ -18,8 +18,13 @@ def load_dataset():
     # Генерация если пусто
     utils.generate_dummy_data()
 
-    files = sorted([f for f in os.listdir(config.DATA_DIR)
-                    if f.lower().endswith(('.png', '.jpg', '.bmp', '.jpeg'))])
+    files = sorted(
+        [
+            f
+            for f in os.listdir(config.DATA_DIR)
+            if f.lower().endswith((".png", ".jpg", ".bmp", ".jpeg"))
+        ]
+    )
 
     if not files:
         raise FileNotFoundError(f"Нет изображений в {config.DATA_DIR}")
@@ -59,7 +64,10 @@ def visualize_results(results_list, patterns, shape_hw):
     if n_samples == 1:
         axes = [axes]  # wrap in list
 
-    fig.suptitle(f"Сеть Хэмминга (Размер: {shape_hw}, Шум: {int(config.NOISE_LEVEL * 100)}%)", fontsize=16)
+    fig.suptitle(
+        f"Сеть Хэмминга (Размер: {shape_hw}, Шум: {int(config.NOISE_LEVEL * 100)}%)",
+        fontsize=16,
+    )
 
     for i, (noisy_vec, pred_lbl, true_lbl, iters, orig_idx) in enumerate(results_list):
         ax_row = axes[i]
@@ -67,15 +75,15 @@ def visualize_results(results_list, patterns, shape_hw):
         # 1. Оригинал
         # patterns[orig_idx] берем из памяти
         original_img = utils.vector_to_matrix(patterns[orig_idx], shape_hw)
-        ax_row[0].imshow(original_img, cmap='gray', vmin=0, vmax=255)
+        ax_row[0].imshow(original_img, cmap="gray", vmin=0, vmax=255)
         ax_row[0].set_title(f"Эталон: {true_lbl}")
-        ax_row[0].axis('off')
+        ax_row[0].axis("off")
 
         # 2. Вход с шумом
         noisy_img = utils.vector_to_matrix(noisy_vec, shape_hw)
-        ax_row[1].imshow(noisy_img, cmap='gray', vmin=0, vmax=255)
+        ax_row[1].imshow(noisy_img, cmap="gray", vmin=0, vmax=255)
         ax_row[1].set_title("Вход (Шум)")
-        ax_row[1].axis('off')
+        ax_row[1].axis("off")
 
         # 3. Результат
         status = "OK" if pred_lbl == true_lbl else "ERROR"
@@ -100,11 +108,18 @@ def visualize_results(results_list, patterns, shape_hw):
         except:
             pass
 
-        ax_row[2].text(0.5, 0.5, info_text,
-                       ha='center', va='center', fontsize=12, color=color,
-                       bbox=dict(boxstyle="round", facecolor='white', edgecolor=color))
+        ax_row[2].text(
+            0.5,
+            0.5,
+            info_text,
+            ha="center",
+            va="center",
+            fontsize=12,
+            color=color,
+            bbox=dict(boxstyle="round", facecolor="white", edgecolor=color),
+        )
         ax_row[2].set_title("Выход сети")
-        ax_row[2].axis('off')
+        ax_row[2].axis("off")
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.show()

@@ -1,5 +1,5 @@
 def to_binary(int_num: int, num_of_bin_digits: int) -> str:
-    binary_num: str = ''
+    binary_num: str = ""
 
     if int_num == 0:
         return binary_num.zfill(num_of_bin_digits)
@@ -15,14 +15,14 @@ def from_binary(binary_num: str) -> int:
     result: int = 0
     binary_num = binary_num[::-1]
     for i in range(len(binary_num)):
-        result += int(binary_num[i]) * 2 ** i
+        result += int(binary_num[i]) * 2**i
     return result
 
 
 def sum_binary(binary_num1: str, binary_num2: str) -> str:
     binary_num1: str = binary_num1[::-1]
     binary_num2: str = binary_num2[::-1]
-    result: str = ''
+    result: str = ""
     add_term: int = 0
 
     for i in range(len(binary_num1)):
@@ -38,7 +38,7 @@ def sum_binary(binary_num1: str, binary_num2: str) -> str:
 
 
 def inverse_binary(binary_num: str) -> str:
-    result: str = ''
+    result: str = ""
     for number in binary_num:
-        result += '1' if number == '0' else '0'
-    return sum_binary(result, ''.zfill(len(binary_num) - 1) + '1')
+        result += "1" if number == "0" else "0"
+    return sum_binary(result, "".zfill(len(binary_num) - 1) + "1")
