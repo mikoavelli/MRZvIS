@@ -3,25 +3,23 @@ from data_utils import pad_and_chunk_image, reconstruct_image_from_chunks
 from model import ImageReconstructorNN
 from PIL import Image
 
-INPUT_IMAGE_PATH = "input.bmp"
+INPUT_IMAGE_PATH = "input2.bmp"
 OUTPUT_IMAGE_PATH = "output.bmp"
 
 CHUNK_SHAPE = (8, 8)
 HIDDEN_SIZE = 64
 
 TRAINING_CONFIG = {
-    # ЦЕЛЬ: Сумма квадратичных ошибок за всю эпоху.
-    # Так как мы суммируем ошибки тысяч чанков, число будет большим.
-    "target_loss": 100.0,
-    "max_epochs": 100,  # Эпох нужно меньше, так как обновлений внутри эпохи ОЧЕНЬ много
-    # Для чистого SGD (обновление каждый чанк) скорость должна быть очень маленькой,
-    # иначе веса "взорвутся".
-    "initial_lr": 0.001,
-    "log_frequency": 1,  # Логируем каждую эпоху, т.к. они долгие
+    "target_loss": 3000.0,
+    "max_epochs": 1000,
+    "initial_lr": 0.0001,
+    "log_frequency": 1,
     "enable_scheduler": True,
-    "lr_scheduler_patience_epochs": 5,
-    "lr_factor": 0.5,
-    "min_lr": 1e-8,
+    "lr_patience_decrease": 3,
+    "lr_factor_decrease": 0.7,
+    "lr_patience_increase": 3,
+    "lr_factor_increase": 1.05,
+    "min_lr": 1e-7,
 }
 
 if __name__ == "__main__":
