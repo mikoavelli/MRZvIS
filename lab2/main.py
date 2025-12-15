@@ -84,9 +84,7 @@ def fill_matrix(m, p, q):
 
 def find_Tavg():
     Tavg = 0
-    Tavg += (
-        p * q * m * (3 * (t_diff + t_comparison) + 7 * t_mult + 3 * t_diff + 2 * t_sum)
-    )  # f[i][j][k]
+    Tavg += p * q * m * (3 * (t_diff + t_comparison) + 7 * t_mult + 3 * t_diff + 2 * t_sum)  # f[i][j][k]
     Tavg += p * q * m * t_comparison  # d[i][j][k]
     Tavg += p * q * (m - 1) * t_mult  # /~\k
     Tavg += p * q * ((m + 1) * t_diff + (m - 1) * t_mult)  # \~/k
@@ -108,7 +106,21 @@ def find_C(x, y, m):
 
     def find_kf(i, j):
         # f = a_to_b*(2*E[0][k]-1)*E[0][k] + b_to_a*(1+(4*a_to_b-2)*E[0][k])*(1-E[0][k])
-        global A, B, E, G, call_mult_count, call_diff_count, call_sum_count, call_compare_count, n, T_parallel, p, q, m, Tavg
+        global \
+            A, \
+            B, \
+            E, \
+            G, \
+            call_mult_count, \
+            call_diff_count, \
+            call_sum_count, \
+            call_compare_count, \
+            n, \
+            T_parallel, \
+            p, \
+            q, \
+            m, \
+            Tavg
         mult_arr = []
         T_parallel_old = T_parallel
 
@@ -136,13 +148,9 @@ def find_C(x, y, m):
 
         if 6 <= n <= m * 3:
             n_actual = n - n % 3  # будет задействоваться максимальное n кратное 3
-            count = math.ceil(
-                (m * 3) / n_actual
-            )  # сколько должно выполниться последовательных операций
+            count = math.ceil((m * 3) / n_actual)  # сколько должно выполниться последовательных операций
             temp = (T_parallel - T_parallel_old) / m  # сколько по времени одна итерация
-            T_parallel = (
-                T_parallel - (m - count) * temp
-            )  # отнимаем операции, которые можно распараллелить
+            T_parallel = T_parallel - (m - count) * temp  # отнимаем операции, которые можно распараллелить
         elif n >= m * 3:
             temp = (T_parallel - T_parallel_old) / m
             T_parallel = T_parallel_old + temp
@@ -170,13 +178,9 @@ def find_C(x, y, m):
 
         if 2 <= n <= m * 1:
             new_n = n - n % 1  # будет задействоваться максимальное n кратное 1
-            count = math.ceil(
-                (m * 1) / new_n
-            )  # сколько должно выполниться последоватеьных операций
+            count = math.ceil((m * 1) / new_n)  # сколько должно выполниться последоватеьных операций
             temp = (T_parallel - old_Tn) / m  # сколько по времени одна итерация
-            T_parallel = (
-                T_parallel - (m - count) * temp
-            )  # отнимаем операции, которые можно распараллелить
+            T_parallel = T_parallel - (m - count) * temp  # отнимаем операции, которые можно распараллелить
         elif n >= m * 1:
             temp = (T_parallel - old_Tn) / m
             T_parallel = old_Tn + temp
@@ -246,10 +250,7 @@ def main():
             break
 
     T_sequential = (
-        call_mult_count * t_mult
-        + call_diff_count * t_diff
-        + call_sum_count * t_sum
-        + call_compare_count * t_comparison
+        call_mult_count * t_mult + call_diff_count * t_diff + call_sum_count * t_sum + call_compare_count * t_comparison
     )
     Ky = T_sequential / T_parallel
     e = Ky / n
@@ -304,9 +305,7 @@ def main_graphicsKr():
         )
         Ky = T_sequential / T_parallel
         ky_n10.append(Ky)
-        print(
-            f"n = {n}, m = {m}, r = {r}, T_sequential = {T_sequential}, Tn = {T_parallel}, Ky = {Ky}"
-        )
+        print(f"n = {n}, m = {m}, r = {r}, T_sequential = {T_sequential}, Tn = {T_parallel}, Ky = {Ky}")
         r_vals.append(r)
 
     for i in range(20):
@@ -330,9 +329,7 @@ def main_graphicsKr():
             + call_compare_count * t_comparison
         )
         Ky = T_sequential / T_parallel
-        print(
-            f"n = {n}, m = {m}, r = {r}, T_sequential = {T_sequential}, Tn = {T_parallel}, Ky = {Ky}"
-        )
+        print(f"n = {n}, m = {m}, r = {r}, T_sequential = {T_sequential}, Tn = {T_parallel}, Ky = {Ky}")
         ky_n7.append(Ky)
 
     plt.figure(figsize=(10, 5))
@@ -609,7 +606,7 @@ def main_graphicsDr():
             + call_compare_count * t_comparison
         )
         Ky = T_sequential / T_parallel
-        e = Ky / n
+        Ky / n
         Tavg = find_Tavg()
         Lavg = Tavg / r
         D = T_parallel / Lavg
@@ -639,7 +636,7 @@ def main_graphicsDr():
             + call_compare_count * t_comparison
         )
         Ky = T_sequential / T_parallel
-        e = Ky / n
+        Ky / n
         Tavg = find_Tavg()
         Lavg = Tavg / r
         D = T_parallel / Lavg
@@ -685,7 +682,7 @@ def main_graphicsDn():
                             + call_compare_count * t_comparison
                         )
                         Ky = T_sequential / T_parallel
-                        e = Ky / n
+                        Ky / n
                         Tavg = find_Tavg()
                         Lavg = Tavg / r
                         D = T_parallel / Lavg
@@ -724,7 +721,7 @@ def main_graphicsDn():
                             + call_compare_count * t_comparison
                         )
                         Ky = T_sequential / T_parallel
-                        e = Ky / n
+                        Ky / n
                         Tavg = find_Tavg()
                         Lavg = Tavg / r
                         D = T_parallel / Lavg

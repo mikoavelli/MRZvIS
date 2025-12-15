@@ -98,9 +98,7 @@ def run_training_session(image_path, hidden_size, target_loss, initial_lr, tag="
             "min_lr": LR_MIN_RATE,
         }
 
-        print(
-            f"[{tag}] Start training (Target Loss: {target_loss}, LR: {initial_lr})..."
-        )
+        print(f"[{tag}] Start training (Target Loss: {target_loss}, LR: {initial_lr})...")
         epochs = model.train(chunks, chunks, config)
         print(f"[{tag}] Finished in {epochs} epochs.")
         return epochs
@@ -172,9 +170,7 @@ def plot_2_compression():
     # Задачи: для каждого Hidden Size запускаем EXP2_RUNS раз
     for h_size in EXP2_HIDDEN_SIZES:
         for i in range(EXP2_RUNS):
-            tasks.append(
-                (image_path, h_size, EXP2_TARGET_ERROR, EXP2_LR, f"{tag} H={h_size}")
-            )
+            tasks.append((image_path, h_size, EXP2_TARGET_ERROR, EXP2_LR, f"{tag} H={h_size}"))
 
     print(f"[{tag}] Запуск {len(tasks)} задач параллельно...")
 
@@ -256,6 +252,6 @@ if __name__ == "__main__":
     # plot_3_lr()
 
     end_time = time.time()
-    print(f"\n==================================================")
+    print("\n==================================================")
     print(f"Все графики построены за: {end_time - start_time:.2f} сек.")
     print(f"Результаты в папке: {PLOT_OUTPUT_DIR}")

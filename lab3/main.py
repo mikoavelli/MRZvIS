@@ -27,9 +27,7 @@ if __name__ == "__main__":
         original_image = Image.open(INPUT_IMAGE_PATH).convert("RGB")
         image_array = np.array(original_image) / 255.0
 
-        chunk_sequence, padded_shape, original_shape = pad_and_chunk_image(
-            image_array, CHUNK_SHAPE
-        )
+        chunk_sequence, padded_shape, original_shape = pad_and_chunk_image(image_array, CHUNK_SHAPE)
         input_size = chunk_sequence.shape[1]
 
         model = ImageReconstructorNN(input_size, HIDDEN_SIZE, input_size)
@@ -46,9 +44,7 @@ if __name__ == "__main__":
         reconstructed_chunks_flat = model.forward(chunk_sequence.astype(np.float32))
         reconstructed_chunks = np.squeeze(np.array(reconstructed_chunks_flat))
 
-        reconstructed_padded_array = reconstruct_image_from_chunks(
-            reconstructed_chunks, padded_shape, CHUNK_SHAPE
-        )
+        reconstructed_padded_array = reconstruct_image_from_chunks(reconstructed_chunks, padded_shape, CHUNK_SHAPE)
         h_orig, w_orig, _ = original_shape
         reconstructed_final_array = reconstructed_padded_array[:h_orig, :w_orig, :]
 

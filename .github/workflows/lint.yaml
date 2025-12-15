@@ -13,19 +13,21 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: '3.13'
+          # Включаем кэширование зависимостей (опционально, но рекомендуется)
+          enable-cache: true
+          cache-suffix: "format-lint"
 
-      - name: Install dependencies
-        run: |
-          pip install black isort
+      - name: Set up Python
+        run: uv python install 3.13
 
-      - name: Check imports (Isort)
-        run: |
-          isort . --check-only --diff --skip .venv
+      - name: Check formatting (Ruff)
+        # Аналог black . --check
+        run: uvx ruff format --check
 
-      - name: Check formatting (Black)
-        run: |
-          black . --check
+      - name: Check linting & imports (Ruff)
+        # Аналог isort + flake8
+        # Если ruff не настроен в pyproject.toml, можно добавить --select I для проверки импортов
+        run: uvx ruff check

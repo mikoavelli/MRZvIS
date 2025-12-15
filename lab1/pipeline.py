@@ -14,12 +14,8 @@ class MyException(Exception):
 class Pipeline:
     """Non-restoring division pipeline"""
 
-    def __init__(
-        self, list_dividend: list[str], list_divisor: list[str], num_of_bin_digits: int
-    ) -> None:
-        self._dividends, self._divisors = self._check_values(
-            list_dividend, list_divisor, num_of_bin_digits
-        )
+    def __init__(self, list_dividend: list[str], list_divisor: list[str], num_of_bin_digits: int) -> None:
+        self._dividends, self._divisors = self._check_values(list_dividend, list_divisor, num_of_bin_digits)
         self._count: int = num_of_bin_digits
         self._generate_pipeline()
         self._start_pipeline()
@@ -36,9 +32,7 @@ class Pipeline:
                 raise MyException("Count must be greater than 0")
 
             if len(dividends) != len(divisors):
-                raise MyException(
-                    "The number of dividends does not equal the number of divisors"
-                )
+                raise MyException("The number of dividends does not equal the number of divisors")
 
             for i in range(len(dividends)):
                 if dividends[i] < 0:
@@ -62,9 +56,7 @@ class Pipeline:
             self._pipeline[f"step{i + 1}"]: dict[str:str, ...] = dict()
 
         self._pipeline["result"]: tuple[dict[str:str, str:str, str:str]] = None
-        self._pipeline["queue_backup"]: tuple[list[int], ...] = tuple(
-            zip(self._dividends, self._divisors)
-        )
+        self._pipeline["queue_backup"]: tuple[list[int], ...] = tuple(zip(self._dividends, self._divisors))
         self._pipeline["tact"]: int = 0
 
     def _start_pipeline(self) -> None:
@@ -87,9 +79,7 @@ class Pipeline:
             for dividend, divisor in self._pipeline["queue"]:
                 print(f"{dividend} / {divisor}")
         else:
-            print(
-                f"Total tact: {len(self._pipeline['queue_backup']) + self._count - 1}"
-            )
+            print(f"Total tact: {len(self._pipeline['queue_backup']) + self._count - 1}")
             for dividend, divisor in self._pipeline["queue_backup"]:
                 print(f"{dividend} / {divisor}")
 
@@ -112,9 +102,7 @@ class Pipeline:
                     f" Reminder: {result['reminder']} - {from_binary(result['reminder'])}",
                     end=" ",
                 )
-                print(
-                    f" Quotient: {result['dividend']} - {from_binary(result['dividend'])}"
-                )
+                print(f" Quotient: {result['dividend']} - {from_binary(result['dividend'])}")
 
         print("-" * 20)
 
@@ -125,9 +113,7 @@ class Pipeline:
         for i in range(self._count - 1, 0, -1):
             step: dict[str:str, str:str, str:str] = self._pipeline[f"step{i}"]
             if step:
-                self._pipeline[f"step{i + 1}"]: dict[str:str, ...] = (
-                    self._calculate_step(step)
-                )
+                self._pipeline[f"step{i + 1}"]: dict[str:str, ...] = self._calculate_step(step)
                 self._pipeline[f"step{i}"] = None
 
         if self._pipeline["queue"]:
@@ -150,12 +136,10 @@ class Pipeline:
                 "dividend": self._pipeline[f"step{self._count}"]["dividend"],
                 "divisor": self._pipeline[f"step{self._count}"]["divisor"],
             }
-        if self._pipeline[f"result"] is None:
-            self._pipeline[f"result"] = (self._pipeline[f"step{self._count}"],)
+        if self._pipeline["result"] is None:
+            self._pipeline["result"] = (self._pipeline[f"step{self._count}"],)
         else:
-            self._pipeline[f"result"] = self._pipeline[f"result"] + (
-                self._pipeline[f"step{self._count}"],
-            )
+            self._pipeline["result"] = self._pipeline["result"] + (self._pipeline[f"step{self._count}"],)
         self._pipeline[f"step{self._count}"] = None
 
     def _calculate_step(self, step: dict[str:str, str:str, str:str]):
@@ -165,23 +149,13 @@ class Pipeline:
             step["divisor"],
             is_operation_sum=(step["reminder"][0] == "1"),
         )
-        step["dividend"] = (
-            step["dividend"][:-1] + "0"
-            if step["reminder"][0] == "1"
-            else step["dividend"][:-1] + "1"
-        )
+        step["dividend"] = step["dividend"][:-1] + "0" if step["reminder"][0] == "1" else step["dividend"][:-1] + "1"
         return step
 
     @staticmethod
-    def _shift_and_operation(
-        reminder: str, dividend: str, divisor: str, is_operation_sum: bool
-    ) -> tuple[str, str]:
+    def _shift_and_operation(reminder: str, dividend: str, divisor: str, is_operation_sum: bool) -> tuple[str, str]:
         reminder, dividend = reminder[1:] + dividend[0], dividend[1:] + "_"
-        reminder = (
-            sum_binary(reminder, divisor)
-            if is_operation_sum
-            else sum_binary(reminder, inverse_binary(divisor))
-        )
+        reminder = sum_binary(reminder, divisor) if is_operation_sum else sum_binary(reminder, inverse_binary(divisor))
         return reminder, dividend
 
 

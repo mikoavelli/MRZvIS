@@ -1,8 +1,9 @@
-# Индивидуальная лабораторная работа 1 по дисциплине МРЗвИС вариант 6
+# Индивидуальная лабораторная работа 2 по дисциплине МРЗвИС вариант 6
 # "Реализовать модель сети Хэмминга"
 # Выполнена студентом группы 221702 БГУИР Целуйко Дмитрием Александровичом
 # Использованные источники:
-# Формальные модели обработки информации и параллельные модели решения задач. Практикум: учебно-методическое пособие / В.П.Ивашенко. – Минск: БГУИР, 2020.
+# Формальные модели обработки информации и параллельные модели решения задач.
+# Практикум: учебно-методическое пособие / В.П.Ивашенко. – Минск: БГУИР, 2020.
 
 import os
 
@@ -16,19 +17,17 @@ from hamming_network import HammingNetwork
 def load_dataset_paths():
     """Возвращает список путей к файлам изображений."""
     utils.generate_dummy_data()
-    files = sorted(
-        [
-            f
-            for f in os.listdir(config.DATA_DIR)
-            if f.lower().endswith((".png", ".jpg", ".bmp", ".jpeg"))
-        ]
-    )
+    files = sorted([f for f in os.listdir(config.DATA_DIR) if f.lower().endswith((".png", ".jpg", ".bmp", ".jpeg"))])
     paths = [os.path.join(config.DATA_DIR, f) for f in files]
     return paths
 
 
 def load_dataset_vectors(paths, target_size=None):
-    """Загружает векторы."""
+    """
+    Динамическое определение размера.
+    Программа не знает заранее размер картинок. Она берет размер
+    первого файла и заставляет все остальные под него подстроиться.
+    """
     patterns = []
     labels = []
 
@@ -44,6 +43,7 @@ def load_dataset_vectors(paths, target_size=None):
         vec, _ = utils.load_image_as_vector(path, target_size=detected_shape)
         if vec is not None:
             patterns.append(vec)
+            # Извлекаем имя файла (букву) как метку класса.
             labels.append(os.path.splitext(os.path.basename(path))[0])
 
     return patterns, labels, detected_shape
@@ -96,9 +96,7 @@ def visualize_results(results_list, patterns, shape_hw):
         ax_row[0].set_title(f"Эталон: {true_lbl}")
         ax_row[0].axis("off")
         # Шум
-        ax_row[1].imshow(
-            utils.vector_to_matrix(noisy_vec, shape_hw), cmap="gray", vmin=0, vmax=255
-        )
+        ax_row[1].imshow(utils.vector_to_matrix(noisy_vec, shape_hw), cmap="gray", vmin=0, vmax=255)
         ax_row[1].set_title("Вход")
         ax_row[1].axis("off")
         # Результат
@@ -119,6 +117,7 @@ def visualize_results(results_list, patterns, shape_hw):
 
 
 def main():
+    """Реализовано переключение режимов: визуальный тест или научная аналитика."""
     paths = load_dataset_paths()
     if not paths:
         print("Нет данных.")

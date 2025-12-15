@@ -9,9 +9,7 @@ try:
     mpl.rcParams["font.family"] = "sans-serif"
     mpl.rcParams["font.sans-serif"] = ["DejaVu Sans"]
 except Exception as e:
-    print(
-        f"Не удалось установить шрифт для matplotlib: {e}. Кириллица может не отображаться."
-    )
+    print(f"Не удалось установить шрифт для matplotlib: {e}. Кириллица может не отображаться.")
 
 
 def T1(n, r):
@@ -51,18 +49,14 @@ def plot_ky_vs_r(n_actual, r_actual, digits, r_max_plot=20):
     r_values = np.arange(1, r_max_plot + 1)
 
     ky_n1 = [Ky(1, r_val) for r_val in r_values]
-    plt.plot(r_values, ky_n1, marker="o", linestyle="none", label=f"n=1")
+    plt.plot(r_values, ky_n1, marker="o", linestyle="none", label="n=1")
 
     ky_n_actual_vals = [Ky(n_actual, r_val) for r_val in r_values]
-    plt.plot(
-        r_values, ky_n_actual_vals, marker="o", linestyle="none", label=f"n={n_actual}"
-    )
+    plt.plot(r_values, ky_n_actual_vals, marker="o", linestyle="none", label=f"n={n_actual}")
 
     for r_val, ky_val in zip(r_values, ky_n_actual_vals):
         if not np.isnan(ky_val):
-            plt.text(
-                r_val, ky_val, f"{ky_val:.2f}", fontsize=8, ha="center", va="bottom"
-            )
+            plt.text(r_val, ky_val, f"{ky_val:.2f}", fontsize=8, ha="center", va="bottom")
 
     # Добавление горизонтальной линии на уровне y=6
     plt.axhline(
@@ -73,7 +67,7 @@ def plot_ky_vs_r(n_actual, r_actual, digits, r_max_plot=20):
         label=f"$K_y = {digits}$ асимптота.",
     )
 
-    plt.title(f"График зависимости $K_y$ от ранга задачи $r$")
+    plt.title("График зависимости $K_y$ от ранга задачи $r$")
     plt.xlabel("Ранг задачи, $r$")
     plt.ylabel("Коэффициент ускорения, $K_y$")
     plt.xticks(np.arange(0, r_max_plot + 1, 2))
@@ -92,12 +86,10 @@ def plot_e_vs_r(n_actual, r_actual, r_max_plot=20):
     r_values = np.arange(1, r_max_plot + 1)
 
     e_n1 = [e(1, r_val) for r_val in r_values]
-    plt.plot(r_values, e_n1, marker="o", linestyle="none", label=f"n=1")
+    plt.plot(r_values, e_n1, marker="o", linestyle="none", label="n=1")
 
     e_n_actual_vals = [e(n_actual, r_val) for r_val in r_values]
-    plt.plot(
-        r_values, e_n_actual_vals, marker="o", linestyle="none", label=f"n={n_actual}"
-    )
+    plt.plot(r_values, e_n_actual_vals, marker="o", linestyle="none", label=f"n={n_actual}")
 
     for r_val, e_val in zip(r_values, e_n_actual_vals):
         if not np.isnan(e_val):
@@ -110,7 +102,7 @@ def plot_e_vs_r(n_actual, r_actual, r_max_plot=20):
                 va="bottom",
             )
 
-    plt.title(f"График зависимости $e$ от ранга задачи $r$")
+    plt.title("График зависимости $e$ от ранга задачи $r$")
     plt.xlabel("Ранг задачи, $r$")
     plt.ylabel("Эффективность, $e$")
     plt.xticks(np.arange(0, r_max_plot + 1, 2))
@@ -133,22 +125,16 @@ def plot_ky_vs_n(
     """
     # Определение n_max_plot и r_max_curves, если не переданы явно
     if n_max_plot_param is None:
-        n_max_plot_param = max(
-            n_actual_sim_param + 2, 10
-        )  # Например, n_max_plot = 10 как на скриншоте
+        n_max_plot_param = max(n_actual_sim_param + 2, 10)  # Например, n_max_plot = 10 как на скриншоте
     if r_max_curves_param is None:
-        r_max_curves_param = max(
-            r_actual_sim_param, 8
-        )  # Например, r до 9 как на скриншоте
+        r_max_curves_param = max(r_actual_sim_param, 8)  # Например, r до 9 как на скриншоте
 
     plt.figure(figsize=(8, 6))
 
     # Точки n, для которых будут строиться значения Ky
     # Обычно это n=1 и n=n_max_plot_param
     n_points_to_plot = [1]
-    if (
-        n_max_plot_param > 1
-    ):  # Добавляем конечную точку, только если она отличается от начальной
+    if n_max_plot_param > 1:  # Добавляем конечную точку, только если она отличается от начальной
         n_points_to_plot.append(n_max_plot_param)
     # Убираем дубликаты и сортируем, если n_max_plot_param=1
     n_points_to_plot = sorted(list(set(n_points_to_plot)))
@@ -200,7 +186,7 @@ def plot_ky_vs_n(
     #     legend_labels.append(f'$K_y = {ky_horizontal_line_at}$ - асимптота')
     #     max_y_value_from_points = max(max_y_value_from_points, ky_horizontal_line_at)
 
-    plt.title(f"График зависимости $K_y$ от кол-ва этапов $n$ (начало и конец)")
+    plt.title("График зависимости $K_y$ от кол-ва этапов $n$ (начало и конец)")
     plt.xlabel("Кол-во этапов, $n$")
     plt.ylabel("Коэффициент ускорения, $K_y$")
 
@@ -214,9 +200,7 @@ def plot_ky_vs_n(
         final_xticks = np.append(final_xticks, n_max_plot_param)
     final_xticks = np.unique(final_xticks)
     # Показываем только те метки, которые попадают в диапазон [1, n_max_plot_param]
-    final_xticks = final_xticks[
-        (final_xticks >= 1) & (final_xticks <= n_max_plot_param)
-    ]
+    final_xticks = final_xticks[(final_xticks >= 1) & (final_xticks <= n_max_plot_param)]
 
     if len(final_xticks) > 0:
         plt.xticks(final_xticks)
@@ -225,9 +209,7 @@ def plot_ky_vs_n(
 
     # Пределы по осям
     plt.xlim(left=0.5, right=n_max_plot_param + 0.5)  # Немного отступа по краям
-    plt.ylim(
-        bottom=0, top=max(1, max_y_value_from_points) * 1.1
-    )  # От 0 до чуть выше максимального значения
+    plt.ylim(bottom=0, top=max(1, max_y_value_from_points) * 1.1)  # От 0 до чуть выше максимального значения
 
     plt.grid(True)
     plt.legend(legend_handles, legend_labels)
@@ -285,7 +267,7 @@ def plot_e_vs_n(
     #     legend_handles.append(extra_pt_handle)
     #     legend_labels.append(f'Ассимтота ({n_extra}, {e_extra:.2f})')
 
-    plt.title(f"График зависимости $e$ от кол-ва этапов $n$ (начало и конец)")
+    plt.title("График зависимости $e$ от кол-ва этапов $n$ (начало и конец)")
     plt.xlabel("Кол-во этапов, $n$")
     plt.ylabel("Эффективность, $e$")
 
@@ -335,12 +317,8 @@ class MyException(Exception):
 class Conveyer:
     """Non-restoring division conveyer"""
 
-    def __init__(
-        self, list_dividend: list[str], list_divisor: list[str], num_of_bin_digits: int
-    ) -> None:
-        self._dividends, self._divisors = self._check_values(
-            list_dividend, list_divisor, num_of_bin_digits
-        )
+    def __init__(self, list_dividend: list[str], list_divisor: list[str], num_of_bin_digits: int) -> None:
+        self._dividends, self._divisors = self._check_values(list_dividend, list_divisor, num_of_bin_digits)
         self._count: int = num_of_bin_digits
         self._num_tasks: int = len(self._dividends)
         self._generate_conveyer()
@@ -369,9 +347,7 @@ class Conveyer:
                         f"Dividend {dividends[i]} out of range [0, {max_val}] for {num_of_bin_digits} bits"
                     )
                 if not (0 < divisors[i] <= max_val):
-                    raise MyException(
-                        f"Divisor {divisors[i]} out of range (0, {max_val}] for {num_of_bin_digits} bits"
-                    )
+                    raise MyException(f"Divisor {divisors[i]} out of range (0, {max_val}] for {num_of_bin_digits} bits")
 
         except ValueError:
             raise MyException("Inputs must be integers")
@@ -433,9 +409,7 @@ class Conveyer:
                         f"  Task {idx + 1} ({div_orig}/{dsor_orig}): Q={q_bin} ({q_int}), R={r_bin_int_part} ({r_int})"
                     )
                 except ValueError:
-                    print(
-                        f"  Task {idx + 1} ({div_orig}/{dsor_orig}): Q={q_bin} (...), R={r_bin_int_part} (...)"
-                    )
+                    print(f"  Task {idx + 1} ({div_orig}/{dsor_orig}): Q={q_bin} (...), R={r_bin_int_part} (...)")
         else:
             print("  (No results yet)")
         print("-" * 30)
@@ -469,9 +443,7 @@ class Conveyer:
     def _calculate_last_step(self, step: dict[str, str]) -> dict[str, str]:
         final_step = step.copy()
         if final_step["reminder"][0] == "1":
-            final_step["reminder"] = sum_binary(
-                final_step["reminder"], final_step["divisor"]
-            )
+            final_step["reminder"] = sum_binary(final_step["reminder"], final_step["divisor"])
         return final_step
 
     def _calculate_step(self, step: dict[str, str, str]):
@@ -488,9 +460,7 @@ class Conveyer:
         return next_step
 
     @staticmethod
-    def _shift_and_operation(
-        reminder: str, dividend: str, divisor: str, is_sum_operation: bool
-    ) -> tuple[str, str]:
+    def _shift_and_operation(reminder: str, dividend: str, divisor: str, is_sum_operation: bool) -> tuple[str, str]:
         new_reminder = reminder[1:] + dividend[0]
         new_dividend = dividend[1:] + "_"
         if is_sum_operation:
@@ -508,9 +478,7 @@ class Conveyer:
             print("Cannot generate plots for n=0 or r=0.")
             return
 
-        print(
-            f"Plotting theoretical performance for n={n_sim}, r={r_sim} (without highlighting)"
-        )
+        print(f"Plotting theoretical performance for n={n_sim}, r={r_sim} (without highlighting)")
 
         r_plot_limit = max(20, r_sim + 5)
         n_plot_limit = max(n_sim + 2, 8)
@@ -536,7 +504,6 @@ class Conveyer:
 
 
 if __name__ == "__main__":
-
     try:
         # dividends_in = input("Enter space-separated dividends: ").split()
         # divisors_in = input("Enter space-separated divisors: ").split()

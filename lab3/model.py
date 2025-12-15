@@ -10,12 +10,8 @@ class ImageReconstructorNN:
         self.output_size = output_size
 
         init_range = 1.0
-        self.W_ih = np.random.uniform(
-            -init_range, init_range, (hidden_size, input_size)
-        ).astype(np.float32)
-        self.W_ho = np.random.uniform(
-            -init_range, init_range, (output_size, hidden_size)
-        ).astype(np.float32)
+        self.W_ih = np.random.uniform(-init_range, init_range, (hidden_size, input_size)).astype(np.float32)
+        self.W_ho = np.random.uniform(-init_range, init_range, (output_size, hidden_size)).astype(np.float32)
 
     def forward(self, inputs):
         """Прямой проход."""
@@ -98,9 +94,7 @@ class ImageReconstructorNN:
         up_counter = 0
 
         num_chunks = inputs.shape[0]
-        print(
-            f"Starting SGD (Weights [-1, 1]). Chunks: {num_chunks}. Init LR: {current_lr}"
-        )
+        print(f"Starting SGD (Weights [-1, 1]). Chunks: {num_chunks}. Init LR: {current_lr}")
 
         for epoch in range(max_epochs):
             # 1. ЭТАП ОБУЧЕНИЯ (меняем веса)
@@ -118,9 +112,7 @@ class ImageReconstructorNN:
 
             # Защита от NaN
             if np.isnan(epoch_sse) or np.isinf(epoch_sse):
-                print(
-                    f"\n[CRITICAL] Loss explosion at epoch {epoch + 1}. Decrease initial_lr!"
-                )
+                print(f"\n[CRITICAL] Loss explosion at epoch {epoch + 1}. Decrease initial_lr!")
                 return max_epochs
 
             # 3. ПРОВЕРКА ЦЕЛИ
@@ -163,15 +155,8 @@ class ImageReconstructorNN:
                         else:
                             status_tag = "[Min LR]"
 
-            if (
-                (epoch + 1) % log_freq == 0
-                or epoch == 0
-                or "UP" in status_tag
-                or "DOWN" in status_tag
-            ):
-                print(
-                    f"Ep {epoch + 1} | SSE: {epoch_sse:.1f} | LR: {current_lr:.8f} {status_tag}"
-                )
+            if (epoch + 1) % log_freq == 0 or epoch == 0 or "UP" in status_tag or "DOWN" in status_tag:
+                print(f"Ep {epoch + 1} | SSE: {epoch_sse:.1f} | LR: {current_lr:.8f} {status_tag}")
 
         return max_epochs
 
