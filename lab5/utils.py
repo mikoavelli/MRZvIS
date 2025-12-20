@@ -10,21 +10,27 @@ import numpy as np
 from tabulate import tabulate
 
 
-# === МАТЕМАТИКА ===
 def asinh(x):
+    """Функция активации: Гиперболический арксинус."""
     return np.arcsinh(x)
 
 
 def d_asinh(x):
-    # Производная arcsinh(x) = 1 / sqrt(1 + x^2)
+    """
+    Производная функции asinh(x).
+    Формула: f'(x) = 1 / sqrt(1 + x^2).
+    1e-9 добавляется для стабильности, чтобы избежать деления на ноль.
+    """
     return 1.0 / np.sqrt(1.0 + np.square(x) + 1e-9)
 
 
 def linear(x):
+    """Линейная активация для выходного слоя (регрессия)."""
     return x
 
 
 def d_linear(x):
+    """Производная линейной функции = 1."""
     return np.ones_like(x)
 
 
@@ -43,7 +49,11 @@ class TrigonometryStrategy(BaseStrategy):
 
 class FibonacciStrategy(BaseStrategy):
     def generate(self, n_steps, n_future):
-        # Генерируем чуть больше, чтобы хватило на history + future
+        """
+        Генерирует последовательность Фибоначчи.
+        Важно: генерируем сразу (n_steps + n_future) элементов,
+        чтобы иметь эталон (future_raw) для сравнения прогноза.
+        """
         seq = [1.0, 1.0]
         count = n_steps + n_future
         for _ in range(count - 2):
@@ -71,19 +81,32 @@ class DataProcessor:
         self.std = 1.0
 
     def normalize(self, data):
+        """
+        Z-score нормализация: (x - mean) / std.
+        Приводит данные к распределению с центром в 0 и разбросом 1.
+        Это критически важно для эффективной работы градиентного спуска.
+        """
         self.mean = np.mean(data)
-        self.std = np.std(data) + 1e-8
+        self.std = np.std(data) + 1e-8  # Защита от деления на 0
         return (data - self.mean) / self.std
 
     def denormalize(self, data):
+        """Обратное преобразование для получения реальных значений."""
         return data * self.std + self.mean
 
     def create_windows(self, data):
+        """
+        Метод скользящего окна.
+        Превращает одномерный ряд [1, 2, 3, 4, 5, 6] с окном 3 в:
+        X: [[1,2,3], [2,3,4], [3,4,5]]
+        Y: [[4],     [5],     [6]]
+        Reshape нужен для совместимости с матричными операциями в RNN.
+        """
         X, Y = [], []
         for i in range(len(data) - self.window_size):
             X.append(data[i : i + self.window_size])
             Y.append(data[i + self.window_size])
-        # Reshape for RNN: (Batch, Window, Features)
+        # Возвращаем тензоры размерности (Batch_Size, Window_Size, Features=1)
         return np.array(X)[:, :, None], np.array(Y)[:, None]
 
     @staticmethod

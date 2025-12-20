@@ -58,7 +58,7 @@ class HammingNetwork:
         for epoch in range(config.MAX_EPOCHS):
             # Если остался 1 или 0 активных нейронов -> стоп
             # КРИТЕРИЙ РЕЛАКСАЦИИ: Остановка, если остался один активный нейрон.
-            if np.sum(activations > 0.01) <= 1:
+            if np.sum(activations > 0.0) <= 1:
                 return activations, epoch
 
             sum_prev = np.sum(prev_activations)
@@ -70,9 +70,9 @@ class HammingNetwork:
 
             new_activations = self._activation(new_activations)
 
-            # Если изменения ничтожны, выходим.
-            if np.allclose(new_activations, prev_activations, atol=1e-5):
-                return new_activations, epoch
+            # # Если изменения ничтожны, выходим.
+            # if np.allclose(new_activations, prev_activations, atol=1e-5):
+            #     return new_activations, epoch
 
             activations = new_activations
             prev_activations = np.copy(activations)
@@ -87,6 +87,7 @@ class HammingNetwork:
         # 1. Слой совпадений: Скалярное произведение векторов.
         # Результат показывает, насколько вход похож на каждый из эталонов.
         dot_prod = np.dot(self.weights, noisy_pattern)
+        # Функция активации первого слоя
         layer1_out = 0.5 * dot_prod + self.bias
 
         # 2. Релаксация (MAXNET) для выбора однозначного победителя.
