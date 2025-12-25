@@ -7,7 +7,6 @@
 # Практикум: учебно-методическое пособие / В.П.Ивашенко. – Минск: БГУИР, 2020.
 
 import config
-import graphs
 import numpy as np
 from rnn import RNN
 from tabulate import tabulate
@@ -15,7 +14,6 @@ from utils import DataProcessor, FibonacciStrategy
 
 
 def run_pipeline():
-    # 1. Выбор стратегии
     strategy = FibonacciStrategy()
     print(f"Запуск эксперимента: {strategy.__class__.__name__}")
 
@@ -28,10 +26,9 @@ def run_pipeline():
     # Показываем таблицу с ОРИГИНАЛЬНЫМИ числами (для отчета)
     processor.print_training_table(history_raw, config.WINDOW_SIZE)
 
-    # === КЛЮЧЕВОЙ МОМЕНТ ЛАБОРАТОРНОЙ ===
     # Числа Фибоначчи растут экспоненциально. Сеть не может предсказать число 10^9,
     # если училась на числах 1..100, так как веса не могут вырасти так быстро.
-    # РЕШЕНИЕ: Логарифмирование. Экспонента превращается в линию.
+    # Логарифмирование. Экспонента превращается в линию.
     # ln(1, 2, 3, 5, 8...) -> (0, 0.69, 1.1, 1.6, 2.0...)
     history_log = np.log(history_raw)
 
@@ -86,14 +83,14 @@ def run_pipeline():
         preds_log_norm.append(val)
 
         # 2. Сдвигаем окно: удаляем самое старое число, добавляем предсказанное
-        # Это называется "авторегрессия" — выход становится входом.
+        # "авторегрессия" — выход становится входом.
         curr_window = np.vstack([curr_window[1:], [[val]]])
 
-    # 7. Обратное преобразование (самое важное для отображения)
-    # Шаг 1: Денормализация (возвращаем масштаб логарифмов)
+    # 7. Обратное преобразование
+    # Шаг 1: Денормализация
     preds_log = processor.denormalize(np.array(preds_log_norm))
 
-    # Шаг 2: Экспонента (возвращаем масштаб чисел Фибоначчи)
+    # Шаг 2: Экспонента (восстанавливаем числа Фибоначчи)
     preds_original = np.exp(preds_log)
 
     # 8. Вывод и сравнение с реальными будущими значениями
@@ -107,8 +104,8 @@ def run_pipeline():
     print(tabulate(table_res, tablefmt="fancy_grid"))
 
     # 9. Графики
-    graphs.plot_prediction(history_raw, future_raw, preds_original, strategy.__class__.__name__)
-    graphs.build_benchmark_graphs()
+    # graphs.plot_prediction(history_raw, future_raw, preds_original, strategy.__class__.__name__)
+    # graphs.build_benchmark_graphs()
 
 
 if __name__ == "__main__":
